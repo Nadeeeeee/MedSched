@@ -1,0 +1,97 @@
+from tkinter import *
+from tkinter import ttk
+
+
+class win():
+    def __init__(self,rt):
+        self.rt = rt
+        self.rt.title("MedSched")
+        self.rt.geometry("1150x510")
+        self.rt.resizable(width=False, height=False)
+
+
+#Frames
+        mainFrame=Frame(self.rt, bd=5, width=1150, height=750, relief=RIDGE)
+        mainFrame.grid()
+        upperFrame=Frame(mainFrame, bd=5, width=1145, height=200, relief=RIDGE)
+        upperFrame.grid(row=0, column=0)
+        upperFrame2 = Frame(mainFrame, bd=5, width=1145, height=500, relief=RIDGE)
+        upperFrame2.grid(row=2, column=0)
+
+
+        innerUpperframe3 = Frame(upperFrame2,bd =5, width=1130, height=480, relief=RIDGE)
+        innerUpperframe3.grid()
+
+        xScroll = Scrollbar(innerUpperframe3, orient=HORIZONTAL)
+        yScroll = Scrollbar(innerUpperframe3, orient=VERTICAL)
+#labels
+        nameLabel=Label(upperFrame, font=('arial', 12,'bold'), text="Medicine Name")
+        nameLabel.grid(row=0,column=0)
+
+        startLabel=Label(upperFrame,font=('arial', 12,'bold'), text="Start Date")
+        startLabel.grid(row=1, column=0)
+
+        untilLabel=Label(upperFrame, font=('arial', 12,'bold'), text="Until")
+        untilLabel.grid(row=2, column=0)
+        intkDatelbl = Label(upperFrame, font=('arial', 12,'bold'), text="Intake Date")
+        intkDatelbl.grid(row=3, column=0)
+        intkTimelbl = Label(upperFrame, font=('arial', 12,'bold'), text="Intake Time")
+        intkTimelbl.grid(row=4, column=0)
+        amtlbl = Label(upperFrame, font=('arial', 12,'bold'), text="Amount")
+        amtlbl.grid(row=5, column=0)
+#Entry
+        eName = Entry(upperFrame, font=('arial', 12, 'bold'), width=30)
+        eName.grid(row=0, column=1)
+        eStart = Entry(upperFrame, font=('arial', 12, 'bold'), width=30)
+        eStart.grid(row=1, column=1)
+        eUntil = Entry(upperFrame, font=('arial', 12, 'bold'), width=30)
+        eUntil.grid(row=2, column=1)
+        eintkDate= Entry(upperFrame, font=('arial', 12, 'bold'), width=30)
+        eintkDate.grid(row=3, column=1)
+        eintkTime = Entry(upperFrame, font=('arial', 12, 'bold'), width=30)
+        eintkTime.grid(row=4, column=1)
+        eAmt = Entry(upperFrame, font=('arial', 12, 'bold'), width=30)
+        eAmt.grid(row=5, column=1)
+#buttons
+        insertBtn= Button(upperFrame, font=('arial', 12, 'bold'), text="Add Medicine", pady =1)
+        insertBtn.grid(row=0, column=2)
+        updateBtn= Button(upperFrame,font=('arial', 12, 'bold'), text="Update", pady =1)
+        updateBtn.grid(row=1, column=2)
+        deleteBtn = Button(upperFrame,font=('arial', 12, 'bold'), text="Delete", pady =1)
+        deleteBtn.grid(row=2, column=2)
+
+
+#treeview
+        tbl_med = ttk.Treeview(innerUpperframe3, height=13,
+                               columns=("MedName", "StartDate", "Until", "IntakeDate", "IntakeTime", "Amount"),
+                               xscrollcommand=xScroll.set
+                               , yscrollcommand=yScroll.set)
+#Scrollbar                           
+        xScroll.pack(side=BOTTOM, fill=X)
+        yScroll.pack(side=RIGHT, fill=Y)
+
+        tbl_med.heading("MedName", text="MedName")
+        tbl_med.heading("StartDate", text="StartDate")
+        tbl_med.heading("Until", text="Until")
+        tbl_med.heading("IntakeDate", text="IntakeDate")
+        tbl_med.heading("IntakeTime", text="IntakeTime")
+        tbl_med.heading("Amount", text="Amount")
+
+        tbl_med['show'] = 'headings'
+
+        tbl_med.column("MedName", width=200)
+        tbl_med.column("StartDate", width=200)
+        tbl_med.column("Until", width=200)
+        tbl_med.column("IntakeDate", width=200)
+        tbl_med.column("IntakeTime", width=200)
+        tbl_med.column("Amount", width=100)
+
+        tbl_med.pack(fill=BOTH, expand=1)
+
+
+
+if __name__=='__main__':
+    rt = Tk()
+    application = win(rt)
+   # application = labels(rt)
+    rt.mainloop()
