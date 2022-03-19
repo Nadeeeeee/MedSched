@@ -18,17 +18,19 @@ class win():
         def addMed():
             conn = sqlite3.connect('DBmedsched')
             c = conn.cursor()
-
-            c.execute('INSERT INTO DBmedsched(MedName,StartDate,Until,IntakeDays,IntakeTime,Amount) VALUES(?,?,?,?,?,?)',(eName.get(),eStart.get(),eUntil.get(),eintkDate.get(),eintkTime.get(),eAmt.get()))
-            conn.commit()
-            eName.delete(0, END)
-            eStart.delete(0, END)
-            eUntil.delete(0, END)
-            eintkDate.delete(0, END)
-            eintkTime.delete(0, END)
-            eAmt.delete(0, END)
-            messagebox.showinfo("Entry Successful", "Entry Successful!, Press the refresh button to see it in the table")
-
+            confirm = messagebox.askquestion("Confirmation", "Do you want to add this medicine?")
+            if(confirm=="yes"):
+                c.execute('INSERT INTO DBmedsched(MedName,StartDate,Until,IntakeDays,IntakeTime,Amount) VALUES(?,?,?,?,?,?)',(eName.get(),eStart.get(),eUntil.get(),eintkDate.get(),eintkTime.get(),eAmt.get()))
+                conn.commit()
+                eName.delete(0, END)
+                eStart.delete(0, END)
+                eUntil.delete(0, END)
+                eintkDate.delete(0, END)
+                eintkTime.delete(0, END)
+                eAmt.delete(0, END)
+                messagebox.showinfo("Entry Successful", "Entry Successful!, Press the refresh button to see it in the table")
+            else:
+                messagebox.showinfo("Action Cancelled", "Medicine not saved.")
             conn.commit()
             conn.close()
 
@@ -86,6 +88,7 @@ class win():
             eintkDate.insert(0, val[4])
             eintkTime.insert(0, val[5])
             eAmt.insert(0, val[6])
+
         def delete():
             permission = messagebox.askquestion("Confirmation", "Do you wish to delete this?")
             if permission =="yes":
@@ -94,6 +97,7 @@ class win():
                 c.execute("DELETE FROM DBmedsched WHERE oid=" + eId.get())
                 conn.commit()
                 conn.close()
+                messagebox.showinfo("Delete Successful","Delete Successful, Refresh to see changes.")
             else:
                 messagebox.showinfo("Not Deleted", "Operation Cancelled or an error occured")
 
@@ -119,11 +123,13 @@ class win():
 
             conn.commit()
             conn.close()
+        def about_us():
+            messagebox.showinfo("About us","This application was made by group 4. Members:Tristan Tan, John lyndon Vasquez, Lance Pastrana, Chizel Diaz, April Nicole Martin")
 
 #Frames
         mainFrame=Frame(self.rt, bd=10, width=1150, height=750, relief=RIDGE, bg='cyan')
         mainFrame.grid()
-        titleframe=Frame(mainFrame, bd=5, width=1150, height=70, relief=RAISED,bg='blue')
+        titleframe=Frame(mainFrame, bd=5, width=1180, height=70, relief=FLAT,bg='#FFF89A')
         titleframe.grid()
         treeviewFrame=Frame(mainFrame, bd=5, width=1145, height=200, relief=RAISED)
         treeviewFrame.grid()
@@ -137,26 +143,26 @@ class win():
         xScroll = Scrollbar(treeviewFrame, orient=HORIZONTAL)
         yScroll = Scrollbar(treeviewFrame, orient=VERTICAL)
 #labels
-        titleLabel=Label(titleframe, font=('courier', 30,'bold'), text="MEDSCHED", fg="White", bg='blue')
+        titleLabel=Label(titleframe, font=('Arial', 30,'bold'), text="MEDSCHED", fg="#2D31FA", bg='#FFF89A')
         titleLabel.place(x=505, y=-1)
-        nameLabel=Label(mainlabelFrame, font=('courier', 20,'bold'), text="Medicine Name")
+        nameLabel=Label(mainlabelFrame, font=('courier', 20,'bold'), text="Medicine Name:")
         nameLabel.grid(row=0,column=0)
 
-        startLabel=Label(mainlabelFrame,font=('courier', 20,'bold'), text="Start Date")
+        startLabel=Label(mainlabelFrame,font=('courier', 20,'bold'), text="Start Date:")
         startLabel.grid(row=1, column=0)
 
-        untilLabel=Label(mainlabelFrame, font=('courier', 20,'bold'), text="Until")
+        untilLabel=Label(mainlabelFrame, font=('courier', 20,'bold'), text="Until:")
         untilLabel.grid(row=2, column=0)
-        intkDatelbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Intake Day")
+        intkDatelbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Intake Day:")
         intkDatelbl.grid(row=3, column=0)
-        intkTimelbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Intake Time")
+        intkTimelbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Intake Time:")
         intkTimelbl.grid(row=4, column=0)
-        amtlbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Amount")
+        amtlbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Amount:")
         amtlbl.grid(row=5, column=0)
 
 #Entry
         eId = Entry(mainlabelFrame, font=('courier', 20, 'bold'), width=5)
-        eId.grid(row=6, column=1)
+        eId.place(x=1000, y=1000)
         eName = Entry(mainlabelFrame, font=('courier', 20, 'bold'), width=30)
         eName.grid(row=0, column=1)
         eStart = Entry(mainlabelFrame, font=('courier', 20, 'bold'), width=30)
@@ -172,14 +178,16 @@ class win():
 #buttons
         insertBtn= Button(mainlabelFrame, font=('arial', 20, 'bold'), text="Add Medicine", pady =1, bg='light blue', command=addMed)
         insertBtn.grid(row=0, column=2)
-        updateBtn= Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Update", pady =1, bg='yellow', command=Update)
+        updateBtn= Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Update", pady =1, padx=42,bg='yellow', command=Update)
         updateBtn.grid(row=1, column=2)
-        deleteBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Delete", pady =1, bg='red', command=delete)
+        deleteBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Delete", pady =1,padx=47, bg='red', command=delete)
         deleteBtn.grid(row=2, column=2)
-        refreshBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Refresh", pady =1, bg='green', command=display)
+        refreshBtn = Button(mainlabelFrame,font=('arial', 18, 'bold'), text="Refresh Table", pady =1,padx=10, bg='green', command=display)
         refreshBtn.grid(row=3, column=2)
-        selectBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Select", pady =1, bg='pink', command=select)
+        selectBtn = Button(mainlabelFrame,font=('arial', 18, 'bold'), text="Select Medicine", pady =1, bg='pink', command=select)
         selectBtn.grid(row=4, column=2)
+        about_us = Button(mainFrame, font=('arial', 10, 'bold'), text="About us", pady =1,padx=1, command=about_us)
+        about_us.place(x=1, y=672)
 
 #treeview
         self.tbl_med = ttk.Treeview(treeviewFrame, height=13,
@@ -189,7 +197,7 @@ class win():
         xScroll.pack(side=BOTTOM, fill=X)
         yScroll.pack(side=RIGHT, fill=Y)
 
-        self.tbl_med.heading("ID", text="ID")
+        self.tbl_med.heading("ID", text="No.")
         self.tbl_med.heading("MedName", text="MedName")
         self.tbl_med.heading("StartDate", text="StartDate")
         self.tbl_med.heading("Until", text="Until")
