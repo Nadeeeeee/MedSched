@@ -3,40 +3,120 @@ from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
 
-with sqlite3.connect('MedSchedDB') as db:
+with sqlite3.connect('DBmedsched') as db:
     cursor=db.cursor()
-cursor.execute("""CREATE TABLE IF NOT EXISTS sched(MedName TEXT, StartDate TEXT, Until TEXT, IntakeDays TEXT, IntakeTime TEXT, Amount TEXT);""")
-#conn = sqlite3.connect('MedSchedDB')
-#c = conn.cursor()
-#c.execute("CREATE TABLE IF NOT EXISTS MedSchedDB(MedName TEXT, StartDate TEXT, Until TEXT, IntakeDays TEXT, IntakeTime TEXT, Amount TEXT)")
-#conn.commit()
-#conn.close()
+cursor.execute("""CREATE TABLE IF NOT EXISTS DBmedsched(MedName TEXT, StartDate TEXT, Until TEXT, IntakeDays TEXT, IntakeTime TEXT, Amount TEXT);""")
+
 class win():
     def __init__(self,rt):
         self.rt = rt
         self.rt.title("MedSched")
-        self.rt.geometry("1160x710")
+        self.rt.geometry("1200x731")
         self.rt.resizable(width=False, height=False)
 
-        #MedName = StringVar()
-       # StartDate = StringVar()
-       # Until = StringVar()
-       # IntakeDate = StringVar()
-       # IntakeTime = StringVar()
-       # Amount = StringVar()
 
         def addMed():
-            conn = sqlite3.connect('MedSchedDB')
+            conn = sqlite3.connect('DBmedsched')
             c = conn.cursor()
-            c.execute("INSERT INTO sched VALUES (:MedName, :StartDate,:Until,:IntakeDays,:IntakeTime,:Amount)",
-                      {
-                          'MedName': eName.get(),
-                          'StartDate': eStart.get(),
-                          'Until': eUntil.get(),
-                          'IntakeDays': eintkDate.get(),
-                          'IntakeTime': eintkTime.get(),
-                          'Amount': eAmt.get(),
-                      })
+
+            c.execute('INSERT INTO DBmedsched(MedName,StartDate,Until,IntakeDays,IntakeTime,Amount) VALUES(?,?,?,?,?,?)',(eName.get(),eStart.get(),eUntil.get(),eintkDate.get(),eintkTime.get(),eAmt.get()))
+            conn.commit()
+            eName.delete(0, END)
+            eStart.delete(0, END)
+            eUntil.delete(0, END)
+            eintkDate.delete(0, END)
+            eintkTime.delete(0, END)
+            eAmt.delete(0, END)
+            messagebox.showinfo("Entry Successful", "Entry Successful!, Press the refresh button to see it in the table")
+
+            conn.commit()
+            conn.close()
+
+        def Query():
+            conn = sqlite3.connect('DBmedsched')
+            c = conn.cursor()
+            c.execute("SELECT rowid, * FROM DBmedsched")
+            rec = c.fetchall()
+            global count
+            count = 0
+            for data in rec:
+                if count % 2==0:
+                    self.tbl_med.insert(parent='',index='end', iid=count, text='', values=(data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
+                else:
+                    self.tbl_med.insert(parent='',index='end', iid=count, text='', values=(data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
+                count +=1
+            conn.commit()
+            conn.close()
+
+
+        def display():
+            conn = sqlite3.connect('DBmedsched')
+            c = conn.cursor()
+            c.execute("SELECT * FROM DBmedsched")
+            rec2= c.fetchall()
+            global count
+            count = 0
+            for j in self.tbl_med.get_children():
+                self.tbl_med.delete(j)
+            for data2 in rec2:
+                if count %2 == 0:
+                    self.tbl_med.insert(parent='', index='end', iid=count, text='',values=(data2[0],data2[1],data2[2],data2[3],data2[4], data2[5]))
+                else:
+                    self.tbl_med.insert(parent='', index='end', iid=count, text='',values=(data2[0],data2[1],data2[2],data2[3],data2[4],data2[5]))
+                count+=1
+            self.tbl_med.delete(*self.tbl_med.get_children())
+            Query()
+            conn.commit()
+
+        def select():
+            eId.delete(0, END)
+            eName.delete(0, END)
+            eStart.delete(0, END)
+            eUntil.delete(0, END)
+            eintkDate.delete(0, END)
+            eintkTime.delete(0, END)
+            eAmt.delete(0, END)
+
+            selected = self.tbl_med.focus()
+            val = self.tbl_med.item(selected, 'val')
+            eId.insert(0, val[0])
+            eName.insert(0, val[1])
+            eStart.insert(0, val[2])
+            eUntil.insert(0, val[3])
+            eintkDate.insert(0, val[4])
+            eintkTime.insert(0, val[5])
+            eAmt.insert(0, val[6])
+        def delete():
+            permission = messagebox.askquestion("Confirmation", "Do you wish to delete this?")
+            if permission =="yes":
+                conn = sqlite3.connect('DBmedsched')
+                c = conn.cursor()
+                c.execute("DELETE FROM DBmedsched WHERE oid=" + eId.get())
+                conn.commit()
+                conn.close()
+            else:
+                messagebox.showinfo("Not Deleted", "Operation Cancelled or an error occured")
+
+        def Update():
+            ask = messagebox.askquestion("Confirmation", "Are you sure you want to update this?")
+            if ask =="yes":
+                select = self.tbl_med.focus()
+                self.tbl_med.item(select, text="", values=(eId.get(),eName.get(),eStart.get(), eUntil.get(), eintkDate.get(),eintkTime.get(), eAmt.get(),))
+                conn = sqlite3.connect('DBmedsched')
+                c = conn.cursor()
+                c.execute("UPDATE DBmedsched SET MedName = :mn, StartDate = :sd, Until = :u, IntakeDays = :ind, IntakeTime =:it, Amount =:am WHERE oid= :oid",{
+                    'mn':eName.get(),
+                    'sd':eStart.get(),
+                    'u':eUntil.get(),
+                    'ind':eintkDate.get(),
+                    'it':eintkTime.get(),
+                    'am':eAmt.get(),
+                    'oid':eId.get(),
+                })
+                messagebox.showinfo("Success!", "Update Complete!")
+            else:
+                messagebox.showinfo("Update Incompelete", "Update Cancelled")
+
             conn.commit()
             conn.close()
 
@@ -67,13 +147,16 @@ class win():
 
         untilLabel=Label(mainlabelFrame, font=('courier', 20,'bold'), text="Until")
         untilLabel.grid(row=2, column=0)
-        intkDatelbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Intake Date")
+        intkDatelbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Intake Day")
         intkDatelbl.grid(row=3, column=0)
         intkTimelbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Intake Time")
         intkTimelbl.grid(row=4, column=0)
         amtlbl = Label(mainlabelFrame, font=('courier', 20,'bold'), text="Amount")
         amtlbl.grid(row=5, column=0)
+
 #Entry
+        eId = Entry(mainlabelFrame, font=('courier', 20, 'bold'), width=5)
+        eId.grid(row=6, column=1)
         eName = Entry(mainlabelFrame, font=('courier', 20, 'bold'), width=30)
         eName.grid(row=0, column=1)
         eStart = Entry(mainlabelFrame, font=('courier', 20, 'bold'), width=30)
@@ -89,21 +172,24 @@ class win():
 #buttons
         insertBtn= Button(mainlabelFrame, font=('arial', 20, 'bold'), text="Add Medicine", pady =1, bg='light blue', command=addMed)
         insertBtn.grid(row=0, column=2)
-        updateBtn= Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Update", pady =1, bg='yellow')
+        updateBtn= Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Update", pady =1, bg='yellow', command=Update)
         updateBtn.grid(row=1, column=2)
-        deleteBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Delete", pady =1, bg='red')
+        deleteBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Delete", pady =1, bg='red', command=delete)
         deleteBtn.grid(row=2, column=2)
-        refreshBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Refresh", pady =1, bg='green')
+        refreshBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Refresh", pady =1, bg='green', command=display)
         refreshBtn.grid(row=3, column=2)
+        selectBtn = Button(mainlabelFrame,font=('arial', 20, 'bold'), text="Select", pady =1, bg='pink', command=select)
+        selectBtn.grid(row=4, column=2)
 
 #treeview
         self.tbl_med = ttk.Treeview(treeviewFrame, height=13,
-                               columns=("MedName", "StartDate", "Until", "IntakeDays", "IntakeTime", "Amount"),
+                               columns=("ID","MedName", "StartDate", "Until", "IntakeDays", "IntakeTime", "Amount"),
                                xscrollcommand=xScroll.set
                                , yscrollcommand=yScroll.set)
         xScroll.pack(side=BOTTOM, fill=X)
         yScroll.pack(side=RIGHT, fill=Y)
 
+        self.tbl_med.heading("ID", text="ID")
         self.tbl_med.heading("MedName", text="MedName")
         self.tbl_med.heading("StartDate", text="StartDate")
         self.tbl_med.heading("Until", text="Until")
@@ -113,6 +199,7 @@ class win():
 
         self.tbl_med['show'] = 'headings'
 
+        self.tbl_med.column("ID", width=50)
         self.tbl_med.column("MedName", width=200)
         self.tbl_med.column("StartDate", width=200)
         self.tbl_med.column("Until", width=200)
